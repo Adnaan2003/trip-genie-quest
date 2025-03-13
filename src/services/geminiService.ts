@@ -1,7 +1,7 @@
 
 import { TravelFormData, TravelRecommendation } from '@/types/travel';
 
-const API_KEY = 'AIzaSyBnKUrF1tGXKQx_u62b7QddzVWCyTf5F3o'; // Gemini API key
+const API_KEY = 'AIzaSyDseUhn3qu8sPk5ccx88Cd6H7CHMtXgVAU'; // Gemini API key
 
 export interface GeminiResponse {
   recommendations: TravelRecommendation[];
