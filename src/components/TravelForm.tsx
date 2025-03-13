@@ -5,7 +5,7 @@ import GlassCard from './GlassCard';
 import { cn } from '@/lib/utils';
 
 interface TravelFormProps {
-  onSubmit: (data: TravelFormData, apiKey: string) => void;
+  onSubmit: (data: TravelFormData) => void;
   isLoading: boolean;
 }
 
@@ -20,7 +20,6 @@ const TravelForm: React.FC<TravelFormProps> = ({ onSubmit, isLoading }) => {
     interests: '',
   });
 
-  const [apiKey, setApiKey] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -41,9 +40,8 @@ const TravelForm: React.FC<TravelFormProps> = ({ onSubmit, isLoading }) => {
     if (!formData.startDate) return setError('Please enter your start date');
     if (!formData.endDate) return setError('Please enter your end date');
     if (!formData.budget) return setError('Please enter your budget');
-    if (!apiKey) return setError('Please enter your Gemini API key');
     
-    onSubmit(formData, apiKey);
+    onSubmit(formData);
   };
 
   return (
@@ -179,25 +177,6 @@ const TravelForm: React.FC<TravelFormProps> = ({ onSubmit, isLoading }) => {
             className="form-input resize-none"
             disabled={isLoading}
           />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="apiKey" className="block text-sm font-medium text-gray-700">
-            Gemini API Key
-          </label>
-          <input
-            type="password"
-            id="apiKey"
-            name="apiKey"
-            placeholder="Enter your Gemini API key"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            className="form-input"
-            disabled={isLoading}
-          />
-          <p className="text-xs text-gray-500">
-            Your API key is used only for this request and is not stored
-          </p>
         </div>
 
         <button

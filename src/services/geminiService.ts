@@ -1,7 +1,6 @@
-
 import { TravelFormData, TravelRecommendation } from '@/types/travel';
 
-const API_KEY = ''; // This should be user-provided or stored in Supabase secrets
+const API_KEY = 'YOUR_GEMINI_API_KEY_HERE'; // Replace with your actual Gemini API key
 
 export interface GeminiResponse {
   recommendations: TravelRecommendation[];
@@ -9,17 +8,9 @@ export interface GeminiResponse {
 }
 
 export const generateTravelPlan = async (
-  formData: TravelFormData, 
-  apiKey: string
+  formData: TravelFormData
 ): Promise<GeminiResponse> => {
   try {
-    if (!apiKey) {
-      return {
-        recommendations: [],
-        error: "Please provide a valid Gemini API key"
-      };
-    }
-
     const prompt = `
       Act as a travel planning assistant.
       Please create a detailed travel plan for a trip with the following details:
@@ -47,7 +38,7 @@ export const generateTravelPlan = async (
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-goog-api-key': apiKey,
+        'x-goog-api-key': API_KEY,
       },
       body: JSON.stringify({
         contents: [

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import TravelForm from '@/components/TravelForm';
 import TravelResult from '@/components/TravelResult';
@@ -13,12 +12,12 @@ const Index = () => {
   const [result, setResult] = useState<GeminiResponse | null>(null);
   const { toast } = useToast();
 
-  const handleSubmit = async (data: TravelFormData, apiKey: string) => {
+  const handleSubmit = async (data: TravelFormData) => {
     setLoading(true);
     setFormData(data);
     
     try {
-      const response = await generateTravelPlan(data, apiKey);
+      const response = await generateTravelPlan(data);
       
       if (response.error) {
         toast({
