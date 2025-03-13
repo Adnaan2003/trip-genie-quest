@@ -11,7 +11,7 @@ const GlassCard: React.FC<GlassCardProps> = ({ children, className }) => {
   return (
     <div 
       className={cn(
-        "rounded-2xl bg-white/70 backdrop-blur-lg border border-white/20 shadow-sm",
+        "rounded-2xl bg-white/80 backdrop-blur-lg border border-white/30 shadow-sm transition-all duration-300",
         className
       )}
     >

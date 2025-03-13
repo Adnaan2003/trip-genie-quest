@@ -128,8 +128,16 @@
   
   .btn-primary {
     @apply bg-travel-600 hover:bg-travel-700 text-white font-medium py-2.5 px-5 rounded-lg
-    transition-all duration-200 shadow-sm hover:shadow focus:outline-none focus:ring-2
-    focus:ring-travel-500/30 active:scale-[0.98];
+    transition-all duration-300 shadow-sm hover:shadow-md focus:outline-none focus:ring-2
+    focus:ring-travel-500/30 active:scale-[0.98] relative overflow-hidden;
+  }
+  
+  .btn-primary::before {
+    @apply content-[''] absolute -top-1 left-0 w-full h-full bg-white/20 transform -skew-x-20 transition-all duration-500 -translate-x-full;
+  }
+  
+  .btn-primary:hover::before {
+    @apply translate-x-[110%];
   }
   
   .btn-secondary {
@@ -137,4 +145,76 @@
     transition-all duration-200 shadow-sm border border-gray-200 hover:shadow
     focus:outline-none focus:ring-2 focus:ring-gray-200 active:scale-[0.98];
   }
+  
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  .animate-float-delayed {
+    animation: float 3s ease-in-out 1.5s infinite;
+  }
+  
+  .animate-pulse-slow {
+    animation: pulse-slow 4s ease-in-out infinite;
+  }
+  
+  .animate-fade-up {
+    animation: fade-up 0.7s ease-out forwards;
+  }
+  
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+  }
+  
+  .animate-slide-in {
+    animation: slide-in 0.5s ease-out forwards;
+  }
+  
+  .travel-card-hover {
+    @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+  }
+  
+  .section-title {
+    @apply relative inline-block pb-2 after:content-[''] after:absolute after:bottom-0 after:left-1/2 
+    after:-translate-x-1/2 after:w-12 after:h-1 after:bg-travel-500 after:rounded-full;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes fade-up {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes slide-in {
+  0% { opacity: 0; transform: translateX(-20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+/* Decorative elements */
+.travel-icon {
+  @apply relative inline-flex items-center justify-center;
+}
+
+.travel-icon::before {
+  @apply content-[''] absolute w-full h-full bg-travel-100 rounded-full opacity-40 animate-pulse-slow;
+}
+
+.travel-decoration {
+  @apply absolute w-64 h-64 rounded-full opacity-10 animate-float;
+  background: radial-gradient(circle, var(--color-start) 0%, var(--color-end) 70%, transparent 100%);
 }
