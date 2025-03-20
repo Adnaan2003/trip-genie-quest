@@ -43,6 +43,19 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    /* Travel-specific theme colors */
+    --travel-50: 204 100% 97%;
+    --travel-100: 204 94% 94%;
+    --travel-200: 201 94% 86%;
+    --travel-300: 199 95% 74%;
+    --travel-400: 198 93% 60%;
+    --travel-500: 199 89% 48%;
+    --travel-600: 200 98% 39%;
+    --travel-700: 201 96% 32%;
+    --travel-800: 201 90% 27%;
+    --travel-900: 202 80% 24%;
+    --travel-950: 204 70% 16%;
   }
 
   .dark {
@@ -191,7 +204,7 @@
 }
 
 @keyframes fade-up {
-  0% { opacity: 0; transform: translateY(20px); }
+  0%, 100% { opacity: 0; transform: translateY(20px); }
   100% { opacity: 1; transform: translateY(0); }
 }
 
@@ -218,3 +231,4 @@
   @apply absolute w-64 h-64 rounded-full opacity-10 animate-float;
   background: radial-gradient(circle, var(--color-start) 0%, var(--color-end) 70%, transparent 100%);
 }
+
