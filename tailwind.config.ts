@@ -17,6 +17,9 @@ export default {
       },
     },
     extend: {
+      skew: {
+        '20': '20deg',
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
