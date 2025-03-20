@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TravelForm from '@/components/TravelForm';
 import TravelResult from '@/components/TravelResult';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -12,7 +12,23 @@ const Index = () => {
   const [formData, setFormData] = useState<TravelFormData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [result, setResult] = useState<GeminiResponse | null>(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const { toast } = useToast();
+
+  // Track mouse position for interactive background
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({
+        x: (e.clientX / window.innerWidth) * 100,
+        y: (e.clientY / window.innerHeight) * 100,
+      });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
 
   const handleSubmit = async (data: TravelFormData) => {
     setLoading(true);
@@ -55,22 +71,98 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      {/* Background elements */}
+      {/* Interactive Background */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-sky-50 via-white to-blue-50"></div>
-        <div className="travel-decoration" style={{ top: '10%', right: '5%', '--color-start': '#e0f2fe', '--color-end': '#bae6fd' } as React.CSSProperties}></div>
-        <div className="travel-decoration" style={{ bottom: '10%', left: '5%', '--color-start': '#dbeafe', '--color-end': '#93c5fd' } as React.CSSProperties}></div>
-        <div className="travel-decoration" style={{ top: '40%', left: '20%', '--color-start': '#f0fdfa', '--color-end': '#99f6e4' } as React.CSSProperties}></div>
+        <div 
+          className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-travel-100/80 via-white to-travel-50/90 transition-all duration-300"
+          style={{ 
+            backgroundPosition: `${mousePosition.x}% ${mousePosition.y}%`,
+            backgroundSize: '200% 200%'
+          }}
+        ></div>
+        
+        {/* Interactive decorative elements that follow mouse subtly */}
+        <div 
+          className="travel-decoration animate-float-delayed" 
+          style={{ 
+            top: `${10 + mousePosition.y * 0.03}%`, 
+            right: `${5 + mousePosition.x * 0.02}%`, 
+            '--color-start': '#e0f2fe', 
+            '--color-end': '#bae6fd',
+            transform: `scale(${1 + (mousePosition.y * 0.001)})` 
+          } as React.CSSProperties}
+        ></div>
+        
+        <div 
+          className="travel-decoration" 
+          style={{ 
+            bottom: `${10 - mousePosition.y * 0.02}%`, 
+            left: `${5 + mousePosition.x * 0.01}%`, 
+            '--color-start': '#dbeafe', 
+            '--color-end': '#93c5fd',
+            filter: `blur(${2 + mousePosition.x * 0.01}px)` 
+          } as React.CSSProperties}
+        ></div>
+        
+        <div 
+          className="travel-decoration animate-pulse-slow" 
+          style={{ 
+            top: `${40 - mousePosition.x * 0.03}%`, 
+            left: `${20 + mousePosition.y * 0.02}%`, 
+            '--color-start': '#f0fdfa', 
+            '--color-end': '#99f6e4',
+            opacity: 0.1 + (mousePosition.y * 0.001)
+          } as React.CSSProperties}
+        ></div>
+        
+        {/* Additional interactive bubbles */}
+        <div 
+          className="absolute w-40 h-40 rounded-full bg-travel-300/10 backdrop-blur-md"
+          style={{ 
+            top: `${70 - mousePosition.y * 0.05}%`, 
+            right: `${30 - mousePosition.x * 0.04}%`,
+            transform: `scale(${0.8 + (mousePosition.x * 0.003)}) translateY(${mousePosition.y * 0.1}px)`,
+            transition: 'transform 0.5s ease-out'
+          }}
+        ></div>
+        
+        <div 
+          className="absolute w-24 h-24 rounded-full bg-travel-400/5 backdrop-blur-sm"
+          style={{ 
+            bottom: `${40 + mousePosition.y * 0.03}%`, 
+            right: `${50 - mousePosition.x * 0.02}%`,
+            transform: `translateX(${mousePosition.x * 0.2}px)`,
+            transition: 'transform 0.3s ease-out'
+          }}
+        ></div>
         
         {/* Decorative icons */}
         <div className="absolute top-[15%] left-[10%] travel-icon">
-          <Plane className="text-travel-300 w-6 h-6" />
+          <Plane 
+            className="text-travel-300 w-6 h-6" 
+            style={{ 
+              transform: `rotate(${15 + mousePosition.x * 0.1}deg)`,
+              transition: 'transform 0.3s ease-out'
+            }}
+          />
         </div>
         <div className="absolute top-[70%] right-[15%] travel-icon">
-          <Globe className="text-travel-300 w-8 h-8" />
+          <Globe 
+            className="text-travel-300 w-8 h-8" 
+            style={{ 
+              transform: `rotate(${mousePosition.x * 0.05}deg)`,
+              transition: 'transform 0.3s ease-out'
+            }}
+          />
         </div>
         <div className="absolute bottom-[20%] left-[25%] travel-icon">
-          <MapPin className="text-travel-300 w-5 h-5" />
+          <MapPin 
+            className="text-travel-300 w-5 h-5" 
+            style={{ 
+              transform: `translateY(${(mousePosition.y - 50) * 0.05}px)`,
+              transition: 'transform 0.3s ease-out'
+            }}
+          />
         </div>
       </div>
 
