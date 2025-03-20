@@ -4,6 +4,9 @@ import { TravelRecommendation, TravelFormData } from '@/types/travel';
 import GlassCard from './GlassCard';
 import { cn } from '@/lib/utils';
 import { MapPin, Calendar, Users, Wallet, ChevronLeft, Share2, Download, Bookmark, Heart } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 interface TravelResultProps {
   recommendations: TravelRecommendation[];
@@ -20,8 +23,11 @@ const TravelResult: React.FC<TravelResultProps> = ({
   const [liked, setLiked] = useState<boolean>(false);
   const [bookmarked, setBookmarked] = useState<boolean>(false);
   const [showActionTooltip, setShowActionTooltip] = useState<string | null>(null);
+  const [tripDuration, setTripDuration] = useState<string>('');
   
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const tripContainerRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
   
   useEffect(() => {
     // Scroll to active section on mobile
@@ -30,6 +36,11 @@ const TravelResult: React.FC<TravelResultProps> = ({
       currentRef.scrollIntoView({ behavior: 'smooth' });
     }
   }, [activeSection]);
+
+  // Calculate trip duration
+  useEffect(() => {
+    setTripDuration(getDuration());
+  }, [formData]);
 
   // Calculate trip duration
   const getDuration = () => {
@@ -41,7 +52,7 @@ const TravelResult: React.FC<TravelResultProps> = ({
     return `${diffDays} day${diffDays !== 1 ? 's' : ''}`;
   };
   
-  const handleAction = (action: string) => {
+  const handleAction = async (action: string) => {
     switch (action) {
       case 'like':
         setLiked(!liked);
@@ -52,12 +63,148 @@ const TravelResult: React.FC<TravelResultProps> = ({
         setShowActionTooltip(bookmarked ? null : 'saved');
         break;
       case 'share':
-        setShowActionTooltip('shared');
-        // In a real app, this would trigger share functionality
+        try {
+          setShowActionTooltip('sharing');
+          
+          // Create the text to share
+          const title = `My ${tripDuration} Trip: ${formData.source} to ${formData.destination}`;
+          const text = `Check out my travel plan from ${formData.source} to ${formData.destination} for ${tripDuration}!`;
+          const url = window.location.href;
+          
+          // Check if the Web Share API is available
+          if (navigator.share) {
+            await navigator.share({
+              title,
+              text,
+              url
+            });
+            setShowActionTooltip('shared');
+            toast({
+              title: "Shared Successfully",
+              description: "Your trip details have been shared!",
+            });
+          } else {
+            // Fallback - copy to clipboard
+            await navigator.clipboard.writeText(`${title}\n\n${text}\n\n${url}`);
+            setShowActionTooltip('copied');
+            toast({
+              title: "Copied to Clipboard",
+              description: "Your trip details have been copied to clipboard. You can now share it manually.",
+            });
+          }
+        } catch (error) {
+          console.error('Error sharing:', error);
+          toast({
+            title: "Sharing Failed",
+            description: "Unable to share your trip. Please try again.",
+            variant: "destructive",
+          });
+          setShowActionTooltip(null);
+        }
         break;
       case 'download':
-        setShowActionTooltip('downloaded');
-        // In a real app, this would trigger download functionality
+        try {
+          setShowActionTooltip('downloading');
+          
+          if (!tripContainerRef.current) {
+            toast({
+              title: "Download Failed",
+              description: "Could not generate PDF. Please try again.",
+              variant: "destructive",
+            });
+            setShowActionTooltip(null);
+            return;
+          }
+          
+          // Display a toast to inform the user about the download process
+          toast({
+            title: "Preparing Download",
+            description: "We're generating your PDF. This may take a moment...",
+          });
+          
+          // Generate PDF
+          setTimeout(async () => {
+            try {
+              const tripElement = tripContainerRef.current as HTMLElement;
+              const canvas = await html2canvas(tripElement, {
+                scale: 1,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#ffffff',
+              });
+              
+              const imgData = canvas.toDataURL('image/png');
+              const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4',
+              });
+              
+              // Calculate the width and height to maintain aspect ratio
+              const imgWidth = 210; // A4 width in mm
+              const imgHeight = (canvas.height * imgWidth) / canvas.width;
+              
+              pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+              
+              // Add trip details as text
+              pdf.setFontSize(12);
+              const y = imgHeight + 10;
+              pdf.text(`Trip: ${formData.source} to ${formData.destination}`, 10, y);
+              pdf.text(`Duration: ${tripDuration}`, 10, y + 7);
+              pdf.text(`Dates: ${formData.startDate} to ${formData.endDate}`, 10, y + 14);
+              pdf.text(`Travelers: ${formData.travelers}`, 10, y + 21);
+              pdf.text(`Budget: ${formData.budget}`, 10, y + 28);
+              
+              // Add recommendations as text
+              pdf.setFontSize(14);
+              pdf.text('Travel Recommendations', 10, y + 40);
+              pdf.setFontSize(10);
+              
+              let textY = y + 47;
+              recommendations.forEach((rec, i) => {
+                // Add a new page if we're getting close to the bottom
+                if (textY > 280) {
+                  pdf.addPage();
+                  textY = 20;
+                }
+                
+                pdf.setFontSize(12);
+                pdf.text(`${i + 1}. ${rec.title}`, 10, textY);
+                textY += 7;
+                
+                pdf.setFontSize(10);
+                const contentLines = pdf.splitTextToSize(rec.content, 190);
+                pdf.text(contentLines, 10, textY);
+                textY += contentLines.length * 5 + 10;
+              });
+              
+              // Save the PDF
+              pdf.save(`Trip_${formData.source}_to_${formData.destination}.pdf`);
+              
+              setShowActionTooltip('downloaded');
+              toast({
+                title: "Download Complete",
+                description: "Your travel plan has been downloaded as a PDF.",
+              });
+            } catch (err) {
+              console.error('PDF generation error:', err);
+              toast({
+                title: "Download Failed",
+                description: "Unable to generate PDF. Please try again.",
+                variant: "destructive",
+              });
+              setShowActionTooltip(null);
+            }
+          }, 500);
+        } catch (error) {
+          console.error('Error downloading:', error);
+          toast({
+            title: "Download Failed",
+            description: "Unable to create PDF. Please try again.",
+            variant: "destructive",
+          });
+          setShowActionTooltip(null);
+        }
         break;
     }
     
@@ -67,7 +214,7 @@ const TravelResult: React.FC<TravelResultProps> = ({
   };
 
   return (
-    <div className="w-full max-w-5xl animate-fade-up">
+    <div className="w-full max-w-5xl animate-fade-up" ref={tripContainerRef}>
       <GlassCard className="p-8 mb-6 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-1">
           <div className="bg-gradient-to-r from-travel-400 to-travel-600 h-full w-full"></div>
@@ -76,7 +223,7 @@ const TravelResult: React.FC<TravelResultProps> = ({
         <div className="flex flex-col space-y-4">
           <div className="text-center mb-2">
             <span className="bg-travel-100 text-travel-800 text-xs py-1 px-3 rounded-full font-medium">
-              {getDuration()} Trip
+              {tripDuration} Trip
             </span>
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-travel-800 to-travel-600">
@@ -138,8 +285,11 @@ const TravelResult: React.FC<TravelResultProps> = ({
             <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-3 rounded animate-fade-up">
               {showActionTooltip === 'liked' && 'Added to favorites!'}
               {showActionTooltip === 'saved' && 'Saved to your trips!'}
-              {showActionTooltip === 'shared' && 'Sharing options would appear here'}
-              {showActionTooltip === 'downloaded' && 'Downloading your trip details!'}
+              {showActionTooltip === 'sharing' && 'Opening share options...'}
+              {showActionTooltip === 'shared' && 'Successfully shared!'}
+              {showActionTooltip === 'copied' && 'Copied to clipboard!'}
+              {showActionTooltip === 'downloading' && 'Preparing your PDF...'}
+              {showActionTooltip === 'downloaded' && 'PDF downloaded!'}
             </div>
           )}
         </div>

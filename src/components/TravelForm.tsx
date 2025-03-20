@@ -1,9 +1,9 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TravelFormData } from '@/types/travel';
 import GlassCard from './GlassCard';
 import { cn } from '@/lib/utils';
-import { MapPin, Calendar, Wallet, Users, Compass, PlaneTakeoff } from 'lucide-react';
+import { MapPin, Calendar, Wallet, Users, Compass, PlaneTakeoff, Clock } from 'lucide-react';
 
 interface TravelFormProps {
   onSubmit: (data: TravelFormData) => void;
@@ -23,6 +23,7 @@ const TravelForm: React.FC<TravelFormProps> = ({ onSubmit, isLoading }) => {
 
   const [error, setError] = useState<string | null>(null);
   const [formStep, setFormStep] = useState<number>(0);
+  const [tripDuration, setTripDuration] = useState<number | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -30,7 +31,32 @@ const TravelForm: React.FC<TravelFormProps> = ({ onSubmit, isLoading }) => {
       ...prev,
       [name]: value
     }));
+    
+    // Recalculate trip duration when dates change
+    if (name === 'startDate' || name === 'endDate') {
+      calculateTripDuration();
+    }
   };
+  
+  const calculateTripDuration = () => {
+    if (formData.startDate && formData.endDate) {
+      const start = new Date(formData.startDate);
+      const end = new Date(formData.endDate);
+      if (!isNaN(start.getTime()) && !isNaN(end.getTime()) && end >= start) {
+        const diffTime = Math.abs(end.getTime() - start.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        setTripDuration(diffDays);
+      } else {
+        setTripDuration(null);
+      }
+    } else {
+      setTripDuration(null);
+    }
+  };
+  
+  useEffect(() => {
+    calculateTripDuration();
+  }, [formData.startDate, formData.endDate]);
 
   const nextStep = () => {
     setError(null);
@@ -164,6 +190,15 @@ const TravelForm: React.FC<TravelFormProps> = ({ onSubmit, isLoading }) => {
                   disabled={isLoading}
                 />
               </div>
+              
+              {tripDuration !== null && (
+                <div className="mt-4 bg-travel-50 rounded-lg p-3 animate-fade-in">
+                  <div className="flex items-center text-travel-800">
+                    <Clock className="w-4 h-4 mr-2 text-travel-600" />
+                    <span className="font-medium">Trip Duration: {tripDuration} day{tripDuration !== 1 ? 's' : ''}</span>
+                  </div>
+                </div>
+              )}
             </div>
             
             <div className="flex gap-2 pt-4">
