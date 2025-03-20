@@ -27,10 +27,13 @@ export const generateTravelPlan = async (
       2. Accommodation suggestions within budget
       3. Must-see attractions based on interests
       4. Daily itinerary outline
-      5. Food and dining recommendations
+      5. Food and dining recommendations (include at least 5 specific local dishes or restaurants that are must-try)
       6. Local cultural experiences
       7. Shopping recommendations
       8. Safety tips for the destination
+      9. Interesting Places to Visit (include at least 5 unique or off-the-beaten-path locations)
+      
+      For the food recommendations and interesting places sections, be very specific with names, descriptions, and what makes them special or unique to the destination.
       
       Format each section with a clear title and detailed content that is helpful for travelers.
     `;

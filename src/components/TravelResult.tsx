@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { TravelRecommendation, TravelFormData } from '@/types/travel';
 import GlassCard from './GlassCard';
 import { cn } from '@/lib/utils';
-import { MapPin, Calendar, Users, Wallet, ChevronLeft, Share2, Download, Bookmark, Heart } from 'lucide-react';
+import { MapPin, Calendar, Users, Wallet, ChevronLeft, Share2, Download, Bookmark, Heart, Utensils, Landmark } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -50,6 +50,38 @@ const TravelResult: React.FC<TravelResultProps> = ({
     const diffTime = Math.abs(end.getTime() - start.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return `${diffDays} day${diffDays !== 1 ? 's' : ''}`;
+  };
+  
+  // Check if a section is about food or interesting places
+  const getSectionType = (title: string): 'food' | 'places' | 'normal' => {
+    const foodKeywords = ['food', 'dining', 'restaurant', 'cuisine', 'dish'];
+    const placesKeywords = ['interesting', 'place', 'attraction', 'visit', 'sight'];
+    
+    const lowerTitle = title.toLowerCase();
+    
+    if (foodKeywords.some(keyword => lowerTitle.includes(keyword))) {
+      return 'food';
+    }
+    
+    if (placesKeywords.some(keyword => lowerTitle.includes(keyword))) {
+      return 'places';
+    }
+    
+    return 'normal';
+  };
+  
+  // Get icon for section
+  const getSectionIcon = (title: string) => {
+    const type = getSectionType(title);
+    
+    switch (type) {
+      case 'food':
+        return <Utensils className="w-4 h-4 mr-2 text-amber-500" />;
+      case 'places':
+        return <Landmark className="w-4 h-4 mr-2 text-blue-500" />;
+      default:
+        return <span className="w-4 h-4 mr-2"></span>;
+    }
   };
   
   const handleAction = async (action: string) => {
@@ -305,28 +337,42 @@ const TravelResult: React.FC<TravelResultProps> = ({
               </h3>
             </div>
             <nav className="p-2">
-              {recommendations.map((rec, index) => (
-                <button
-                  key={index}
-                  onClick={() => setActiveSection(index)}
-                  className={cn(
-                    "w-full text-left p-3 rounded-lg text-sm mb-1 transition-all flex items-center",
-                    activeSection === index
-                      ? "bg-travel-100 text-travel-800 font-medium"
-                      : "hover:bg-gray-100"
-                  )}
-                >
-                  <span className={cn(
-                    "w-6 h-6 flex items-center justify-center rounded-full mr-2 text-xs",
-                    activeSection === index
-                      ? "bg-travel-500 text-white"
-                      : "bg-gray-100"
-                  )}>
-                    {index + 1}
-                  </span>
-                  <span className="line-clamp-1">{rec.title}</span>
-                </button>
-              ))}
+              {recommendations.map((rec, index) => {
+                const sectionType = getSectionType(rec.title);
+                return (
+                  <button
+                    key={index}
+                    onClick={() => setActiveSection(index)}
+                    className={cn(
+                      "w-full text-left p-3 rounded-lg text-sm mb-1 transition-all flex items-center",
+                      activeSection === index && sectionType === 'food' 
+                        ? "bg-amber-100 text-amber-800 font-medium"
+                        : activeSection === index && sectionType === 'places'
+                          ? "bg-blue-100 text-blue-800 font-medium"
+                          : activeSection === index
+                            ? "bg-travel-100 text-travel-800 font-medium"
+                            : "hover:bg-gray-100"
+                    )}
+                  >
+                    <span className={cn(
+                      "w-6 h-6 flex items-center justify-center rounded-full mr-2 text-xs",
+                      activeSection === index && sectionType === 'food'
+                        ? "bg-amber-500 text-white"
+                        : activeSection === index && sectionType === 'places'
+                          ? "bg-blue-500 text-white"
+                          : activeSection === index
+                            ? "bg-travel-500 text-white"
+                            : "bg-gray-100"
+                    )}>
+                      {index + 1}
+                    </span>
+                    <span className="line-clamp-1 flex items-center">
+                      {getSectionIcon(rec.title)}
+                      {rec.title}
+                    </span>
+                  </button>
+                );
+              })}
             </nav>
             <div className="p-4 border-t border-gray-100">
               <button
@@ -342,26 +388,35 @@ const TravelResult: React.FC<TravelResultProps> = ({
 
         <div className="lg:col-span-2 space-y-6">
           {recommendations.length > 0 ? (
-            recommendations.map((rec, index) => (
-              <div
-                key={index}
-                id={`section-${index}`}
-                ref={el => sectionRefs.current[index] = el}
-                className={cn(
-                  "transition-all duration-300",
-                  index === activeSection ? "opacity-100" : "hidden lg:block lg:opacity-40"
-                )}
-              >
-                <GlassCard className="p-6 travel-card-hover">
-                  <h2 className="text-xl font-medium text-gray-900 mb-4 section-title">{rec.title}</h2>
-                  <div className="prose prose-blue max-w-none mt-6">
-                    {rec.content.split('\n').map((line, i) => (
-                      <p key={i} className="mb-3 animate-fade-in" style={{ animationDelay: `${i * 0.1}s` }}>{line}</p>
-                    ))}
-                  </div>
-                </GlassCard>
-              </div>
-            ))
+            recommendations.map((rec, index) => {
+              const sectionType = getSectionType(rec.title);
+              return (
+                <div
+                  key={index}
+                  id={`section-${index}`}
+                  ref={el => sectionRefs.current[index] = el}
+                  className={cn(
+                    "transition-all duration-300",
+                    index === activeSection ? "opacity-100" : "hidden lg:block lg:opacity-40"
+                  )}
+                >
+                  <GlassCard 
+                    className="p-6 travel-card-hover" 
+                    highlight={sectionType}
+                  >
+                    <h2 className="text-xl font-medium text-gray-900 mb-4 section-title flex items-center">
+                      {getSectionIcon(rec.title)}
+                      {rec.title}
+                    </h2>
+                    <div className="prose prose-blue max-w-none mt-6">
+                      {rec.content.split('\n').map((line, i) => (
+                        <p key={i} className="mb-3 animate-fade-in" style={{ animationDelay: `${i * 0.1}s` }}>{line}</p>
+                      ))}
+                    </div>
+                  </GlassCard>
+                </div>
+              );
+            })
           ) : (
             <GlassCard className="p-6">
               <p className="text-center text-gray-500">No recommendations available</p>
