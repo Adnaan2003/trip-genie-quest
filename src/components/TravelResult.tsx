@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { TravelRecommendation, TravelFormData } from '@/types/travel';
 import GlassCard from './GlassCard';
 import { cn } from '@/lib/utils';
-import { MapPin, Calendar, Users, Wallet, ChevronLeft, Share2, Download, Bookmark, Heart, Utensils, Landmark, Hotel, Mountain, Camera, ShoppingCart } from 'lucide-react';
+import { MapPin, Calendar, Users, Wallet, ChevronLeft, Share2, Download, Bookmark, Heart, Utensils, Landmark, Hotel, Mountain, Camera, ShoppingCart, Train, Bus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -53,11 +53,12 @@ const TravelResult: React.FC<TravelResultProps> = ({
   };
   
   // Check if a section is about a specific category
-  const getSectionType = (title: string): 'food' | 'places' | 'hotels' | 'nature' | 'normal' => {
+  const getSectionType = (title: string): 'food' | 'places' | 'hotels' | 'nature' | 'transport' | 'normal' => {
     const foodKeywords = ['food', 'dining', 'restaurant', 'cuisine', 'dish'];
     const placesKeywords = ['attraction', 'place', 'visit', 'sight', 'landmark', 'museum', 'photography', 'spot'];
     const hotelKeywords = ['hotel', 'accommodation', 'stay', 'resort', 'lodge', 'hostel'];
     const natureKeywords = ['nature', 'park', 'waterfall', 'beach', 'mountain', 'natural', 'outdoor', 'lake', 'river', 'forest'];
+    const transportKeywords = ['transport', 'train', 'bus', 'travel', 'route', 'journey', 'railway', 'transit', 'commute'];
     
     const lowerTitle = title.toLowerCase();
     
@@ -73,6 +74,10 @@ const TravelResult: React.FC<TravelResultProps> = ({
       return 'nature';
     }
     
+    if (transportKeywords.some(keyword => lowerTitle.includes(keyword))) {
+      return 'transport';
+    }
+    
     if (placesKeywords.some(keyword => lowerTitle.includes(keyword))) {
       return 'places';
     }
@@ -83,6 +88,7 @@ const TravelResult: React.FC<TravelResultProps> = ({
   // Get icon for section
   const getSectionIcon = (title: string) => {
     const type = getSectionType(title);
+    const lowerTitle = title.toLowerCase();
     
     switch (type) {
       case 'food':
@@ -93,11 +99,23 @@ const TravelResult: React.FC<TravelResultProps> = ({
         return <Hotel className="w-4 h-4 mr-2 text-indigo-500" />;
       case 'nature':
         return <Mountain className="w-4 h-4 mr-2 text-emerald-500" />;
+      case 'transport':
+        if (lowerTitle.includes('train')) {
+          return <Train className="w-4 h-4 mr-2 text-purple-500" />;
+        } else if (lowerTitle.includes('bus')) {
+          return <Bus className="w-4 h-4 mr-2 text-purple-500" />;
+        } else {
+          return <Train className="w-4 h-4 mr-2 text-purple-500" />;
+        }
       default:
-        if (title.toLowerCase().includes('shopping')) {
+        if (lowerTitle.includes('shopping')) {
           return <ShoppingCart className="w-4 h-4 mr-2 text-purple-500" />;
-        } else if (title.toLowerCase().includes('photo') || title.toLowerCase().includes('camera')) {
+        } else if (lowerTitle.includes('photo') || lowerTitle.includes('camera')) {
           return <Camera className="w-4 h-4 mr-2 text-cyan-500" />;
+        } else if (lowerTitle.includes('train') || lowerTitle.includes('railway')) {
+          return <Train className="w-4 h-4 mr-2 text-purple-500" />;
+        } else if (lowerTitle.includes('bus') || lowerTitle.includes('coach')) {
+          return <Bus className="w-4 h-4 mr-2 text-purple-500" />;
         }
         return <span className="w-4 h-4 mr-2"></span>;
     }
