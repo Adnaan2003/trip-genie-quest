@@ -6,7 +6,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import { TravelFormData } from '@/types/travel';
 import { generateTravelPlan, GeminiResponse } from '@/services/geminiService';
 import { useToast } from '@/hooks/use-toast';
-import { Plane, Globe, MapPin, Calendar, Clock, Users } from 'lucide-react';
+import { Plane, Globe, MapPin, Calendar, Clock, Users, Mountain, Utensils, Hotel, Camera } from 'lucide-react';
 
 const Index = () => {
   const [formData, setFormData] = useState<TravelFormData | null>(null);
@@ -48,7 +48,7 @@ const Index = () => {
         setResult(response);
         toast({
           title: "Success!",
-          description: "Your travel plan has been created",
+          description: "Your journey plan has been created",
         });
       }
     } catch (error) {
@@ -155,11 +155,38 @@ const Index = () => {
             }}
           />
         </div>
-        <div className="absolute bottom-[20%] left-[25%] travel-icon">
-          <MapPin 
-            className="text-travel-300 w-5 h-5" 
+        <div className="absolute bottom-[30%] left-[25%] travel-icon">
+          <Hotel
+            className="text-travel-300 w-6 h-6" 
             style={{ 
               transform: `translateY(${(mousePosition.y - 50) * 0.05}px)`,
+              transition: 'transform 0.3s ease-out'
+            }}
+          />
+        </div>
+        <div className="absolute top-[30%] right-[25%] travel-icon">
+          <Mountain
+            className="text-travel-300 w-7 h-7" 
+            style={{ 
+              transform: `translateY(${(mousePosition.y - 40) * 0.04}px)`,
+              transition: 'transform 0.3s ease-out'
+            }}
+          />
+        </div>
+        <div className="absolute top-[20%] right-[45%] travel-icon">
+          <Utensils
+            className="text-travel-300 w-5 h-5" 
+            style={{ 
+              transform: `rotate(${mousePosition.x * 0.03}deg)`,
+              transition: 'transform 0.3s ease-out'
+            }}
+          />
+        </div>
+        <div className="absolute bottom-[15%] right-[35%] travel-icon">
+          <Camera
+            className="text-travel-300 w-5 h-5" 
+            style={{ 
+              transform: `scale(${1 + mousePosition.y * 0.001})`,
               transition: 'transform 0.3s ease-out'
             }}
           />
@@ -176,10 +203,10 @@ const Index = () => {
             </div>
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 tracking-tight animate-fade-up bg-clip-text text-transparent bg-gradient-to-r from-travel-800 to-travel-600">
-            Trip<span className="font-extrabold">Genie</span>
+            Journey<span className="font-extrabold">Trip</span>
           </h1>
           <p className="mt-3 text-gray-600 animate-fade-up max-w-xl mx-auto" style={{ animationDelay: '0.1s' }}>
-            Your AI-powered travel companion that crafts personalized adventures tailored just for you
+            Your AI-powered adventure creator that designs personalized journeys with stunning destinations
           </p>
         </div>
       </header>
@@ -192,13 +219,15 @@ const Index = () => {
               <div className="absolute inset-0 rounded-full bg-travel-100 blur-md animate-pulse"></div>
               <LoadingSpinner size="lg" />
             </div>
-            <p className="text-gray-600 animate-fade-up" style={{ animationDelay: '0.2s' }}>Creating your customized travel experience...</p>
-            <div className="flex items-center space-x-3 text-xs text-gray-500 mt-2 animate-fade-up" style={{ animationDelay: '0.3s' }}>
-              <span className="flex items-center"><MapPin className="w-3 h-3 mr-1" />Finding locations</span>
+            <p className="text-gray-600 animate-fade-up" style={{ animationDelay: '0.2s' }}>Creating your dream journey experience...</p>
+            <div className="flex flex-wrap justify-center items-center gap-3 text-xs text-gray-500 mt-2 animate-fade-up" style={{ animationDelay: '0.3s' }}>
+              <span className="flex items-center"><Hotel className="w-3 h-3 mr-1" />Finding accommodations</span>
               <span className="w-1 h-1 rounded-full bg-gray-300"></span>
-              <span className="flex items-center"><Calendar className="w-3 h-3 mr-1" />Planning schedule</span>
+              <span className="flex items-center"><Utensils className="w-3 h-3 mr-1" />Selecting restaurants</span>
               <span className="w-1 h-1 rounded-full bg-gray-300"></span>
-              <span className="flex items-center"><Users className="w-3 h-3 mr-1" />Personalizing</span>
+              <span className="flex items-center"><Mountain className="w-3 h-3 mr-1" />Discovering attractions</span>
+              <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+              <span className="flex items-center"><Camera className="w-3 h-3 mr-1" />Mapping photo spots</span>
             </div>
           </div>
         ) : result && formData ? (
@@ -219,7 +248,7 @@ const Index = () => {
       <footer className="w-full max-w-7xl mx-auto py-6 text-center text-sm text-gray-500">
         <div className="flex items-center justify-center space-x-1">
           <Clock className="w-3 h-3" />
-          <p>Plans generated in seconds with Gemini 1.5 Flash • Created with Lovable</p>
+          <p>Personalized journeys crafted with Gemini 1.5 Flash • Created with Lovable</p>
         </div>
       </footer>
     </div>

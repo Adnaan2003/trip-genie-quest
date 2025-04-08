@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { TravelRecommendation, TravelFormData } from '@/types/travel';
 import GlassCard from './GlassCard';
 import { cn } from '@/lib/utils';
-import { MapPin, Calendar, Users, Wallet, ChevronLeft, Share2, Download, Bookmark, Heart, Utensils, Landmark } from 'lucide-react';
+import { MapPin, Calendar, Users, Wallet, ChevronLeft, Share2, Download, Bookmark, Heart, Utensils, Landmark, Hotel, Mountain, Camera, ShoppingCart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -52,15 +52,25 @@ const TravelResult: React.FC<TravelResultProps> = ({
     return `${diffDays} day${diffDays !== 1 ? 's' : ''}`;
   };
   
-  // Check if a section is about food or interesting places
-  const getSectionType = (title: string): 'food' | 'places' | 'normal' => {
+  // Check if a section is about a specific category
+  const getSectionType = (title: string): 'food' | 'places' | 'hotels' | 'nature' | 'normal' => {
     const foodKeywords = ['food', 'dining', 'restaurant', 'cuisine', 'dish'];
-    const placesKeywords = ['interesting', 'place', 'attraction', 'visit', 'sight'];
+    const placesKeywords = ['attraction', 'place', 'visit', 'sight', 'landmark', 'museum', 'photography', 'spot'];
+    const hotelKeywords = ['hotel', 'accommodation', 'stay', 'resort', 'lodge', 'hostel'];
+    const natureKeywords = ['nature', 'park', 'waterfall', 'beach', 'mountain', 'natural', 'outdoor', 'lake', 'river', 'forest'];
     
     const lowerTitle = title.toLowerCase();
     
     if (foodKeywords.some(keyword => lowerTitle.includes(keyword))) {
       return 'food';
+    }
+    
+    if (hotelKeywords.some(keyword => lowerTitle.includes(keyword))) {
+      return 'hotels';
+    }
+    
+    if (natureKeywords.some(keyword => lowerTitle.includes(keyword))) {
+      return 'nature';
     }
     
     if (placesKeywords.some(keyword => lowerTitle.includes(keyword))) {
@@ -79,7 +89,16 @@ const TravelResult: React.FC<TravelResultProps> = ({
         return <Utensils className="w-4 h-4 mr-2 text-amber-500" />;
       case 'places':
         return <Landmark className="w-4 h-4 mr-2 text-blue-500" />;
+      case 'hotels':
+        return <Hotel className="w-4 h-4 mr-2 text-indigo-500" />;
+      case 'nature':
+        return <Mountain className="w-4 h-4 mr-2 text-emerald-500" />;
       default:
+        if (title.toLowerCase().includes('shopping')) {
+          return <ShoppingCart className="w-4 h-4 mr-2 text-purple-500" />;
+        } else if (title.toLowerCase().includes('photo') || title.toLowerCase().includes('camera')) {
+          return <Camera className="w-4 h-4 mr-2 text-cyan-500" />;
+        }
         return <span className="w-4 h-4 mr-2"></span>;
     }
   };
@@ -99,8 +118,8 @@ const TravelResult: React.FC<TravelResultProps> = ({
           setShowActionTooltip('sharing');
           
           // Create the text to share
-          const title = `My ${tripDuration} Trip: ${formData.source} to ${formData.destination}`;
-          const text = `Check out my travel plan from ${formData.source} to ${formData.destination} for ${tripDuration}!`;
+          const title = `My ${tripDuration} Journey: ${formData.source} to ${formData.destination}`;
+          const text = `Check out my amazing travel plan from ${formData.source} to ${formData.destination} for ${tripDuration}! Created with JourneyTrip.`;
           const url = window.location.href;
           
           // Check if the Web Share API is available
@@ -113,7 +132,7 @@ const TravelResult: React.FC<TravelResultProps> = ({
             setShowActionTooltip('shared');
             toast({
               title: "Shared Successfully",
-              description: "Your trip details have been shared!",
+              description: "Your journey details have been shared!",
             });
           } else {
             // Fallback - copy to clipboard
@@ -121,14 +140,14 @@ const TravelResult: React.FC<TravelResultProps> = ({
             setShowActionTooltip('copied');
             toast({
               title: "Copied to Clipboard",
-              description: "Your trip details have been copied to clipboard. You can now share it manually.",
+              description: "Your journey details have been copied to clipboard. You can now share it manually.",
             });
           }
         } catch (error) {
           console.error('Error sharing:', error);
           toast({
             title: "Sharing Failed",
-            description: "Unable to share your trip. Please try again.",
+            description: "Unable to share your journey. Please try again.",
             variant: "destructive",
           });
           setShowActionTooltip(null);
@@ -181,7 +200,7 @@ const TravelResult: React.FC<TravelResultProps> = ({
               // Add trip details as text
               pdf.setFontSize(12);
               const y = imgHeight + 10;
-              pdf.text(`Trip: ${formData.source} to ${formData.destination}`, 10, y);
+              pdf.text(`Journey: ${formData.source} to ${formData.destination}`, 10, y);
               pdf.text(`Duration: ${tripDuration}`, 10, y + 7);
               pdf.text(`Dates: ${formData.startDate} to ${formData.endDate}`, 10, y + 14);
               pdf.text(`Travelers: ${formData.travelers}`, 10, y + 21);
@@ -211,12 +230,12 @@ const TravelResult: React.FC<TravelResultProps> = ({
               });
               
               // Save the PDF
-              pdf.save(`Trip_${formData.source}_to_${formData.destination}.pdf`);
+              pdf.save(`Journey_${formData.source}_to_${formData.destination}.pdf`);
               
               setShowActionTooltip('downloaded');
               toast({
                 title: "Download Complete",
-                description: "Your travel plan has been downloaded as a PDF.",
+                description: "Your journey plan has been downloaded as a PDF.",
               });
             } catch (err) {
               console.error('PDF generation error:', err);
@@ -247,7 +266,7 @@ const TravelResult: React.FC<TravelResultProps> = ({
 
   return (
     <div className="w-full max-w-5xl animate-fade-up" ref={tripContainerRef}>
-      <GlassCard className="p-8 mb-6 relative overflow-hidden">
+      <GlassCard className="p-8 mb-6 relative overflow-hidden" variant="elevated">
         <div className="absolute top-0 left-0 w-full h-1">
           <div className="bg-gradient-to-r from-travel-400 to-travel-600 h-full w-full"></div>
         </div>
@@ -255,7 +274,7 @@ const TravelResult: React.FC<TravelResultProps> = ({
         <div className="flex flex-col space-y-4">
           <div className="text-center mb-2">
             <span className="bg-travel-100 text-travel-800 text-xs py-1 px-3 rounded-full font-medium">
-              {tripDuration} Trip
+              {tripDuration} Journey
             </span>
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-travel-800 to-travel-600">
@@ -316,7 +335,7 @@ const TravelResult: React.FC<TravelResultProps> = ({
           {showActionTooltip && (
             <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-3 rounded animate-fade-up">
               {showActionTooltip === 'liked' && 'Added to favorites!'}
-              {showActionTooltip === 'saved' && 'Saved to your trips!'}
+              {showActionTooltip === 'saved' && 'Saved to your journeys!'}
               {showActionTooltip === 'sharing' && 'Opening share options...'}
               {showActionTooltip === 'shared' && 'Successfully shared!'}
               {showActionTooltip === 'copied' && 'Copied to clipboard!'}
@@ -333,7 +352,7 @@ const TravelResult: React.FC<TravelResultProps> = ({
             <div className="p-4 bg-gradient-to-r from-travel-50 to-travel-100 border-b border-travel-200">
               <h3 className="font-medium text-travel-800 flex items-center">
                 <MapPin className="w-4 h-4 mr-2" />
-                Trip Details
+                Journey Details
               </h3>
             </div>
             <nav className="p-2">
@@ -349,9 +368,13 @@ const TravelResult: React.FC<TravelResultProps> = ({
                         ? "bg-amber-100 text-amber-800 font-medium"
                         : activeSection === index && sectionType === 'places'
                           ? "bg-blue-100 text-blue-800 font-medium"
-                          : activeSection === index
-                            ? "bg-travel-100 text-travel-800 font-medium"
-                            : "hover:bg-gray-100"
+                          : activeSection === index && sectionType === 'hotels'
+                            ? "bg-indigo-100 text-indigo-800 font-medium"
+                            : activeSection === index && sectionType === 'nature'
+                              ? "bg-emerald-100 text-emerald-800 font-medium"
+                              : activeSection === index
+                                ? "bg-travel-100 text-travel-800 font-medium"
+                                : "hover:bg-gray-100"
                     )}
                   >
                     <span className={cn(
@@ -360,9 +383,13 @@ const TravelResult: React.FC<TravelResultProps> = ({
                         ? "bg-amber-500 text-white"
                         : activeSection === index && sectionType === 'places'
                           ? "bg-blue-500 text-white"
-                          : activeSection === index
-                            ? "bg-travel-500 text-white"
-                            : "bg-gray-100"
+                          : activeSection === index && sectionType === 'hotels'
+                            ? "bg-indigo-500 text-white"
+                            : activeSection === index && sectionType === 'nature'
+                              ? "bg-emerald-500 text-white"
+                              : activeSection === index
+                                ? "bg-travel-500 text-white"
+                                : "bg-gray-100"
                     )}>
                       {index + 1}
                     </span>
@@ -380,7 +407,7 @@ const TravelResult: React.FC<TravelResultProps> = ({
                 className="btn-secondary w-full flex items-center justify-center"
               >
                 <ChevronLeft className="w-4 h-4 mr-2" />
-                Create Another Plan
+                Create Another Journey
               </button>
             </div>
           </GlassCard>
@@ -403,6 +430,7 @@ const TravelResult: React.FC<TravelResultProps> = ({
                   <GlassCard 
                     className="p-6 travel-card-hover" 
                     highlight={sectionType}
+                    variant="elevated"
                   >
                     <h2 className="text-xl font-medium text-gray-900 mb-4 section-title flex items-center">
                       {getSectionIcon(rec.title)}

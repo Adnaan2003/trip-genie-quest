@@ -24,16 +24,19 @@ export const generateTravelPlan = async (
       
       Provide specific recommendations for:
       1. Transportation options and estimated costs
-      2. Accommodation suggestions within budget
+      2. Accommodation suggestions (include at least 5 specific hotels/resorts with brief descriptions and price ranges)
       3. Must-see attractions based on interests
       4. Daily itinerary outline
-      5. Food and dining recommendations (include at least 5 specific local dishes or restaurants that are must-try)
+      5. Food and dining recommendations (include at least 7 specific local dishes and restaurants that are must-try)
       6. Local cultural experiences
       7. Shopping recommendations
       8. Safety tips for the destination
-      9. Interesting Places to Visit (include at least 5 unique or off-the-beaten-path locations)
+      9. Natural attractions (include at least 5 parks, waterfalls, beaches, mountains, or other natural landmarks)
+      10. Best photography spots
+      11. Evening entertainment options
+      12. Family-friendly activities (if applicable)
       
-      For the food recommendations and interesting places sections, be very specific with names, descriptions, and what makes them special or unique to the destination.
+      For the hotels, restaurants, and natural attractions sections, be very specific with names, descriptions, what makes them special, and approximate prices where applicable.
       
       Format each section with a clear title and detailed content that is helpful for travelers.
     `;
