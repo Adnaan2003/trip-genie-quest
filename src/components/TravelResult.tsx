@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { TravelRecommendation, TravelFormData } from '@/types/travel';
 import GlassCard from './GlassCard';
@@ -195,7 +196,7 @@ const TravelResult: React.FC<TravelResultProps> = ({
             try {
               const tripElement = tripContainerRef.current as HTMLElement;
               const canvas = await html2canvas(tripElement, {
-                scale: 2, // Increased scale for better quality
+                scale: 3, // Increased scale for better quality (increased from 2 to 3)
                 useCORS: true,
                 allowTaint: true,
                 backgroundColor: '#ffffff',
@@ -203,6 +204,8 @@ const TravelResult: React.FC<TravelResultProps> = ({
               });
               
               const imgData = canvas.toDataURL('image/png', 1.0); // Use highest quality
+              
+              // Use standard PDF fonts for better rendering
               const pdf = new jsPDF({
                 orientation: 'portrait',
                 unit: 'mm',
@@ -214,31 +217,33 @@ const TravelResult: React.FC<TravelResultProps> = ({
               const imgHeight = (canvas.height * imgWidth) / canvas.width;
               
               // Add embedded fonts for better text clarity
-              pdf.setFont("helvetica", "bold");
+              pdf.setFont("helvetica", "normal");
               pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
               
-              // Add trip details as text with improved formatting
-              pdf.setFontSize(14);
-              pdf.setFont("helvetica", "bold");
+              // Set better fonts for text content
               const y = imgHeight + 10;
+              
+              // Add trip details as text with improved formatting
+              pdf.setFontSize(16);
+              pdf.setFont("helvetica", "bold");
               pdf.text(`Journey: ${formData.source} to ${formData.destination}`, 10, y);
               
               pdf.setFontSize(12);
               pdf.setFont("helvetica", "normal");
-              pdf.text(`Duration: ${tripDuration}`, 10, y + 7);
-              pdf.text(`Dates: ${formData.startDate} to ${formData.endDate}`, 10, y + 14);
-              pdf.text(`Travelers: ${formData.travelers}`, 10, y + 21);
-              pdf.text(`Budget: ₹ ${formData.budget.replace(/^₹\s?/, '')}`, 10, y + 28);
+              pdf.text(`Duration: ${tripDuration}`, 10, y + 8);
+              pdf.text(`Dates: ${formData.startDate} to ${formData.endDate}`, 10, y + 16);
+              pdf.text(`Travelers: ${formData.travelers}`, 10, y + 24);
+              pdf.text(`Budget: ₹ ${formData.budget.replace(/^₹\s?/, '')}`, 10, y + 32);
               
               // Add recommendations as text with improved formatting
               pdf.setFontSize(16);
               pdf.setFont("helvetica", "bold");
-              pdf.text('Travel Recommendations', 10, y + 40);
+              pdf.text('Travel Recommendations', 10, y + 44);
               
-              let textY = y + 47;
+              let textY = y + 52;
               recommendations.forEach((rec, i) => {
                 // Add a new page if we're getting close to the bottom
-                if (textY > 280) {
+                if (textY > 270) {
                   pdf.addPage();
                   textY = 20;
                 }
@@ -246,13 +251,13 @@ const TravelResult: React.FC<TravelResultProps> = ({
                 pdf.setFontSize(14);
                 pdf.setFont("helvetica", "bold");
                 pdf.text(`${i + 1}. ${rec.title}`, 10, textY);
-                textY += 7;
+                textY += 8;
                 
                 pdf.setFontSize(11);
                 pdf.setFont("helvetica", "normal");
                 const contentLines = pdf.splitTextToSize(rec.content, 190);
                 pdf.text(contentLines, 10, textY);
-                textY += contentLines.length * 5 + 10;
+                textY += contentLines.length * 6 + 10;
               });
               
               // Save the PDF
@@ -467,7 +472,9 @@ const TravelResult: React.FC<TravelResultProps> = ({
                     </h2>
                     <div className="prose prose-blue max-w-none mt-6">
                       {rec.content.split('\n').map((line, i) => (
-                        <p key={i} className="mb-3 animate-fade-in" style={{ animationDelay: `${i * 0.1}s` }}>{line}</p>
+                        <p key={i} className="mb-3 animate-fade-in" style={{ animationDelay: `${i * 0.1}s` }}>
+                          {line.replace(/\*\*/g, '')}
+                        </p>
                       ))}
                     </div>
                   </GlassCard>
