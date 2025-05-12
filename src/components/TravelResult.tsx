@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { TravelRecommendation, TravelFormData } from '@/types/travel';
 import GlassCard from './GlassCard';
 import { cn } from '@/lib/utils';
-import { MapPin, Calendar, Users, Wallet, ChevronLeft, Share2, Download, Bookmark, Heart, Utensils, Landmark, Hotel, Mountain, Camera, ShoppingCart, Train, Bus } from 'lucide-react';
+import { MapPin, Calendar, Users, Wallet, ChevronLeft, Share2, Download, Bookmark, Heart, Utensils, Landmark, Hotel, Mountain, Camera, ShoppingCart, Train, Bus, IndianRupee } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -196,13 +195,15 @@ const TravelResult: React.FC<TravelResultProps> = ({
             try {
               const tripElement = tripContainerRef.current as HTMLElement;
               const canvas = await html2canvas(tripElement, {
-                scale: 1,
+                scale: 2, // Increased scale for better quality
                 useCORS: true,
                 allowTaint: true,
                 backgroundColor: '#ffffff',
+                logging: false,
+                letterRendering: true, // Improves text clarity
               });
               
-              const imgData = canvas.toDataURL('image/png');
+              const imgData = canvas.toDataURL('image/png', 1.0); // Use highest quality
               const pdf = new jsPDF({
                 orientation: 'portrait',
                 unit: 'mm',
@@ -213,21 +214,27 @@ const TravelResult: React.FC<TravelResultProps> = ({
               const imgWidth = 210; // A4 width in mm
               const imgHeight = (canvas.height * imgWidth) / canvas.width;
               
+              // Add embedded fonts for better text clarity
+              pdf.setFont("helvetica", "bold");
               pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
               
-              // Add trip details as text
-              pdf.setFontSize(12);
+              // Add trip details as text with improved formatting
+              pdf.setFontSize(14);
+              pdf.setFont("helvetica", "bold");
               const y = imgHeight + 10;
               pdf.text(`Journey: ${formData.source} to ${formData.destination}`, 10, y);
+              
+              pdf.setFontSize(12);
+              pdf.setFont("helvetica", "normal");
               pdf.text(`Duration: ${tripDuration}`, 10, y + 7);
               pdf.text(`Dates: ${formData.startDate} to ${formData.endDate}`, 10, y + 14);
               pdf.text(`Travelers: ${formData.travelers}`, 10, y + 21);
-              pdf.text(`Budget: ${formData.budget}`, 10, y + 28);
+              pdf.text(`Budget: ₹ ${formData.budget.replace(/^₹\s?/, '')}`, 10, y + 28);
               
-              // Add recommendations as text
-              pdf.setFontSize(14);
+              // Add recommendations as text with improved formatting
+              pdf.setFontSize(16);
+              pdf.setFont("helvetica", "bold");
               pdf.text('Travel Recommendations', 10, y + 40);
-              pdf.setFontSize(10);
               
               let textY = y + 47;
               recommendations.forEach((rec, i) => {
@@ -237,11 +244,13 @@ const TravelResult: React.FC<TravelResultProps> = ({
                   textY = 20;
                 }
                 
-                pdf.setFontSize(12);
+                pdf.setFontSize(14);
+                pdf.setFont("helvetica", "bold");
                 pdf.text(`${i + 1}. ${rec.title}`, 10, textY);
                 textY += 7;
                 
-                pdf.setFontSize(10);
+                pdf.setFontSize(11);
+                pdf.setFont("helvetica", "normal");
                 const contentLines = pdf.splitTextToSize(rec.content, 190);
                 pdf.text(contentLines, 10, textY);
                 textY += contentLines.length * 5 + 10;
@@ -309,7 +318,10 @@ const TravelResult: React.FC<TravelResultProps> = ({
             </div>
             <div className="flex items-center">
               <Wallet className="w-4 h-4 mr-2 text-travel-500" />
-              <span>Budget: {formData.budget}</span>
+              <span className="flex items-center">
+                <IndianRupee className="w-3 h-3 mr-1" />
+                {formData.budget.replace(/^₹\s?/, '')}
+              </span>
             </div>
           </div>
           

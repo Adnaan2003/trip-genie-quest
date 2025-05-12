@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { TravelFormData } from '@/types/travel';
 import GlassCard from './GlassCard';
 import { cn } from '@/lib/utils';
-import { MapPin, Calendar, Wallet, Users, Compass, PlaneTakeoff, Clock } from 'lucide-react';
+import { MapPin, Calendar, Wallet, Users, Compass, PlaneTakeoff, Clock, IndianRupee } from 'lucide-react';
 
 interface TravelFormProps {
   onSubmit: (data: TravelFormData) => void;
@@ -233,18 +232,23 @@ const TravelForm: React.FC<TravelFormProps> = ({ onSubmit, isLoading }) => {
               <div className="space-y-2">
                 <label htmlFor="budget" className="flex items-center text-sm font-medium text-gray-700">
                   <Wallet className="w-4 h-4 mr-2 text-travel-500" />
-                  Budget
+                  Budget (₹)
                 </label>
-                <input
-                  type="text"
-                  id="budget"
-                  name="budget"
-                  placeholder="e.g. $3000"
-                  value={formData.budget}
-                  onChange={handleChange}
-                  className="form-input"
-                  disabled={isLoading}
-                />
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <IndianRupee className="h-4 w-4 text-gray-500" />
+                  </div>
+                  <input
+                    type="text"
+                    id="budget"
+                    name="budget"
+                    placeholder="e.g. 50,000"
+                    value={formData.budget}
+                    onChange={handleChange}
+                    className="form-input pl-10"
+                    disabled={isLoading}
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">

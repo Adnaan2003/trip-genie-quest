@@ -1,4 +1,3 @@
-
 import { TravelFormData, TravelRecommendation } from '@/types/travel';
 
 const API_KEY = 'AIzaSyDseUhn3qu8sPk5ccx88Cd6H7CHMtXgVAU'; // Gemini API key
@@ -18,9 +17,8 @@ export const generateTravelPlan = async (
       - Departing from: ${formData.source}
       - Destination: ${formData.destination}
       - Travel dates: ${formData.startDate} to ${formData.endDate}
-      - Budget: ${formData.budget}
+      - Budget: ₹${formData.budget.replace(/^₹\s?/, '')}
       - Number of travelers: ${formData.travelers}
-      - Interests: ${formData.interests}
       
       Provide specific recommendations for:
       1. Transportation options and estimated costs - include specific details about:
@@ -28,7 +26,7 @@ export const generateTravelPlan = async (
          - Bus services (include at least 3 specific bus company names, routes, and comfort levels)
          - Other local transportation options
       2. Accommodation suggestions (include at least 5 specific hotels/resorts with brief descriptions, star ratings, and price ranges)
-      3. Must-see attractions based on interests
+      3. Must-see attractions based on the destination
       4. Daily itinerary outline
       5. Food and dining recommendations (include at least 7 specific local dishes and restaurants that are must-try)
       6. Local cultural experiences
