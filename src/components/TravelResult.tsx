@@ -200,7 +200,6 @@ const TravelResult: React.FC<TravelResultProps> = ({
                 allowTaint: true,
                 backgroundColor: '#ffffff',
                 logging: false,
-                letterRendering: true, // Improves text clarity
               });
               
               const imgData = canvas.toDataURL('image/png', 1.0); // Use highest quality
