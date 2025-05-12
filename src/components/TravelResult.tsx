@@ -3,10 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { TravelRecommendation, TravelFormData } from '@/types/travel';
 import GlassCard from './GlassCard';
 import { cn } from '@/lib/utils';
-import { MapPin, Calendar, Users, Wallet, ChevronLeft, Share2, Download, Bookmark, Heart, Utensils, Landmark, Hotel, Mountain, Camera, ShoppingCart, Train, Bus, IndianRupee } from 'lucide-react';
+import { MapPin, Calendar, Users, Wallet, ChevronLeft, Hotel, Mountain, Camera, Utensils, Landmark, Train, Bus, IndianRupee } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 
 interface TravelResultProps {
   recommendations: TravelRecommendation[];
@@ -20,9 +18,6 @@ const TravelResult: React.FC<TravelResultProps> = ({
   onBack
 }) => {
   const [activeSection, setActiveSection] = useState<number>(0);
-  const [liked, setLiked] = useState<boolean>(false);
-  const [bookmarked, setBookmarked] = useState<boolean>(false);
-  const [showActionTooltip, setShowActionTooltip] = useState<string | null>(null);
   const [tripDuration, setTripDuration] = useState<string>('');
   
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -109,7 +104,7 @@ const TravelResult: React.FC<TravelResultProps> = ({
         }
       default:
         if (lowerTitle.includes('shopping')) {
-          return <ShoppingCart className="w-4 h-4 mr-2 text-purple-500" />;
+          return <Camera className="w-4 h-4 mr-2 text-purple-500" />;
         } else if (lowerTitle.includes('photo') || lowerTitle.includes('camera')) {
           return <Camera className="w-4 h-4 mr-2 text-cyan-500" />;
         } else if (lowerTitle.includes('train') || lowerTitle.includes('railway')) {
@@ -118,180 +113,6 @@ const TravelResult: React.FC<TravelResultProps> = ({
           return <Bus className="w-4 h-4 mr-2 text-purple-500" />;
         }
         return <span className="w-4 h-4 mr-2"></span>;
-    }
-  };
-  
-  const handleAction = async (action: string) => {
-    switch (action) {
-      case 'like':
-        setLiked(!liked);
-        setShowActionTooltip(liked ? null : 'liked');
-        break;
-      case 'bookmark':
-        setBookmarked(!bookmarked);
-        setShowActionTooltip(bookmarked ? null : 'saved');
-        break;
-      case 'share':
-        try {
-          setShowActionTooltip('sharing');
-          
-          // Create the text to share
-          const title = `My ${tripDuration} Journey: ${formData.source} to ${formData.destination}`;
-          const text = `Check out my amazing travel plan from ${formData.source} to ${formData.destination} for ${tripDuration}! Created with JourneyTrip.`;
-          const url = window.location.href;
-          
-          // Check if the Web Share API is available
-          if (navigator.share) {
-            await navigator.share({
-              title,
-              text,
-              url
-            });
-            setShowActionTooltip('shared');
-            toast({
-              title: "Shared Successfully",
-              description: "Your journey details have been shared!",
-            });
-          } else {
-            // Fallback - copy to clipboard
-            await navigator.clipboard.writeText(`${title}\n\n${text}\n\n${url}`);
-            setShowActionTooltip('copied');
-            toast({
-              title: "Copied to Clipboard",
-              description: "Your journey details have been copied to clipboard. You can now share it manually.",
-            });
-          }
-        } catch (error) {
-          console.error('Error sharing:', error);
-          toast({
-            title: "Sharing Failed",
-            description: "Unable to share your journey. Please try again.",
-            variant: "destructive",
-          });
-          setShowActionTooltip(null);
-        }
-        break;
-      case 'download':
-        try {
-          setShowActionTooltip('downloading');
-          
-          if (!tripContainerRef.current) {
-            toast({
-              title: "Download Failed",
-              description: "Could not generate PDF. Please try again.",
-              variant: "destructive",
-            });
-            setShowActionTooltip(null);
-            return;
-          }
-          
-          // Display a toast to inform the user about the download process
-          toast({
-            title: "Preparing Download",
-            description: "We're generating your PDF. This may take a moment...",
-          });
-          
-          // Generate PDF
-          setTimeout(async () => {
-            try {
-              const tripElement = tripContainerRef.current as HTMLElement;
-              const canvas = await html2canvas(tripElement, {
-                scale: 3, // Increased scale for better quality (increased from 2 to 3)
-                useCORS: true,
-                allowTaint: true,
-                backgroundColor: '#ffffff',
-                logging: false,
-              });
-              
-              const imgData = canvas.toDataURL('image/png', 1.0); // Use highest quality
-              
-              // Use standard PDF fonts for better rendering
-              const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4',
-              });
-              
-              // Calculate the width and height to maintain aspect ratio
-              const imgWidth = 210; // A4 width in mm
-              const imgHeight = (canvas.height * imgWidth) / canvas.width;
-              
-              // Add embedded fonts for better text clarity
-              pdf.setFont("helvetica", "normal");
-              pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-              
-              // Set better fonts for text content
-              const y = imgHeight + 10;
-              
-              // Add trip details as text with improved formatting
-              pdf.setFontSize(16);
-              pdf.setFont("helvetica", "bold");
-              pdf.text(`Journey: ${formData.source} to ${formData.destination}`, 10, y);
-              
-              pdf.setFontSize(12);
-              pdf.setFont("helvetica", "normal");
-              pdf.text(`Duration: ${tripDuration}`, 10, y + 8);
-              pdf.text(`Dates: ${formData.startDate} to ${formData.endDate}`, 10, y + 16);
-              pdf.text(`Travelers: ${formData.travelers}`, 10, y + 24);
-              pdf.text(`Budget: ₹ ${formData.budget.replace(/^₹\s?/, '')}`, 10, y + 32);
-              
-              // Add recommendations as text with improved formatting
-              pdf.setFontSize(16);
-              pdf.setFont("helvetica", "bold");
-              pdf.text('Travel Recommendations', 10, y + 44);
-              
-              let textY = y + 52;
-              recommendations.forEach((rec, i) => {
-                // Add a new page if we're getting close to the bottom
-                if (textY > 270) {
-                  pdf.addPage();
-                  textY = 20;
-                }
-                
-                pdf.setFontSize(14);
-                pdf.setFont("helvetica", "bold");
-                pdf.text(`${i + 1}. ${rec.title}`, 10, textY);
-                textY += 8;
-                
-                pdf.setFontSize(11);
-                pdf.setFont("helvetica", "normal");
-                const contentLines = pdf.splitTextToSize(rec.content, 190);
-                pdf.text(contentLines, 10, textY);
-                textY += contentLines.length * 6 + 10;
-              });
-              
-              // Save the PDF
-              pdf.save(`Journey_${formData.source}_to_${formData.destination}.pdf`);
-              
-              setShowActionTooltip('downloaded');
-              toast({
-                title: "Download Complete",
-                description: "Your journey plan has been downloaded as a PDF.",
-              });
-            } catch (err) {
-              console.error('PDF generation error:', err);
-              toast({
-                title: "Download Failed",
-                description: "Unable to generate PDF. Please try again.",
-                variant: "destructive",
-              });
-              setShowActionTooltip(null);
-            }
-          }, 500);
-        } catch (error) {
-          console.error('Error downloading:', error);
-          toast({
-            title: "Download Failed",
-            description: "Unable to create PDF. Please try again.",
-            variant: "destructive",
-          });
-          setShowActionTooltip(null);
-        }
-        break;
-    }
-    
-    if (showActionTooltip) {
-      setTimeout(() => setShowActionTooltip(null), 2000);
     }
   };
 
@@ -304,14 +125,14 @@ const TravelResult: React.FC<TravelResultProps> = ({
         
         <div className="flex flex-col space-y-4">
           <div className="text-center mb-2">
-            <span className="bg-travel-100 text-travel-800 text-xs py-1 px-3 rounded-full font-medium">
+            <span className="bg-travel-100 text-travel-800 text-xs py-1 px-3 rounded-full font-medium animate-pulse-slow">
               {tripDuration} Journey
             </span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-travel-800 to-travel-600">
+          <h1 className="text-3xl md:text-4xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-travel-800 to-travel-600 animate-fade-in">
             {formData.source} to {formData.destination}
           </h1>
-          <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500">
+          <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500 animate-fade-in" style={{ animationDelay: '0.2s' }}>
             <div className="flex items-center">
               <Calendar className="w-4 h-4 mr-2 text-travel-500" />
               <span>{formData.startDate} — {formData.endDate}</span>
@@ -328,55 +149,6 @@ const TravelResult: React.FC<TravelResultProps> = ({
               </span>
             </div>
           </div>
-          
-          <div className="flex justify-center space-x-3 pt-4">
-            <button 
-              onClick={() => handleAction('like')}
-              className={cn(
-                "p-2 rounded-full transition-all", 
-                liked ? "bg-pink-100 text-pink-500" : "bg-gray-50 text-gray-500 hover:bg-gray-100"
-              )}
-              aria-label="Like"
-            >
-              <Heart className={cn("w-5 h-5", liked && "fill-current")} />
-            </button>
-            <button 
-              onClick={() => handleAction('bookmark')}
-              className={cn(
-                "p-2 rounded-full transition-all", 
-                bookmarked ? "bg-travel-100 text-travel-600" : "bg-gray-50 text-gray-500 hover:bg-gray-100"
-              )}
-              aria-label="Save"
-            >
-              <Bookmark className={cn("w-5 h-5", bookmarked && "fill-current")} />
-            </button>
-            <button 
-              onClick={() => handleAction('share')}
-              className="p-2 rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 transition-all"
-              aria-label="Share"
-            >
-              <Share2 className="w-5 h-5" />
-            </button>
-            <button 
-              onClick={() => handleAction('download')}
-              className="p-2 rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 transition-all"
-              aria-label="Download"
-            >
-              <Download className="w-5 h-5" />
-            </button>
-          </div>
-          
-          {showActionTooltip && (
-            <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-3 rounded animate-fade-up">
-              {showActionTooltip === 'liked' && 'Added to favorites!'}
-              {showActionTooltip === 'saved' && 'Saved to your journeys!'}
-              {showActionTooltip === 'sharing' && 'Opening share options...'}
-              {showActionTooltip === 'shared' && 'Successfully shared!'}
-              {showActionTooltip === 'copied' && 'Copied to clipboard!'}
-              {showActionTooltip === 'downloading' && 'Preparing your PDF...'}
-              {showActionTooltip === 'downloaded' && 'PDF downloaded!'}
-            </div>
-          )}
         </div>
       </GlassCard>
 
@@ -397,7 +169,7 @@ const TravelResult: React.FC<TravelResultProps> = ({
                     key={index}
                     onClick={() => setActiveSection(index)}
                     className={cn(
-                      "w-full text-left p-3 rounded-lg text-sm mb-1 transition-all flex items-center",
+                      "w-full text-left p-3 rounded-lg text-sm mb-1 transition-all flex items-center animate-fade-in",
                       activeSection === index && sectionType === 'food' 
                         ? "bg-amber-100 text-amber-800 font-medium"
                         : activeSection === index && sectionType === 'places'
@@ -410,6 +182,7 @@ const TravelResult: React.FC<TravelResultProps> = ({
                                 ? "bg-travel-100 text-travel-800 font-medium"
                                 : "hover:bg-gray-100"
                     )}
+                    style={{ animationDelay: `${index * 0.05}s` }}
                   >
                     <span className={cn(
                       "w-6 h-6 flex items-center justify-center rounded-full mr-2 text-xs",
@@ -438,7 +211,7 @@ const TravelResult: React.FC<TravelResultProps> = ({
             <div className="p-4 border-t border-gray-100">
               <button
                 onClick={onBack}
-                className="btn-secondary w-full flex items-center justify-center"
+                className="btn-secondary w-full flex items-center justify-center hover:scale-[1.02] transition-transform"
               >
                 <ChevronLeft className="w-4 h-4 mr-2" />
                 Create Another Journey

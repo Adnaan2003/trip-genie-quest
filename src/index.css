@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -159,11 +160,11 @@
   }
   
   .animate-float {
-    animation: float 3s ease-in-out infinite;
+    animation: float 4s ease-in-out infinite;
   }
   
   .animate-float-delayed {
-    animation: float 3s ease-in-out 1.5s infinite;
+    animation: float 5s ease-in-out 1.5s infinite;
   }
   
   .animate-pulse-slow {
@@ -182,6 +183,10 @@
     animation: slide-in 0.5s ease-out forwards;
   }
   
+  .animate-glow {
+    animation: glow 3s ease-in-out infinite alternate;
+  }
+  
   .travel-card-hover {
     @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
   }
@@ -193,17 +198,19 @@
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-15px); }
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(2deg); }
+  100% { transform: translateY(0) rotate(0deg); }
 }
 
 @keyframes pulse-slow {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
 }
 
 @keyframes fade-up {
-  0%, 100% { opacity: 0; transform: translateY(20px); }
+  0% { opacity: 0; transform: translateY(20px); }
   100% { opacity: 1; transform: translateY(0); }
 }
 
@@ -217,16 +224,36 @@
   100% { opacity: 1; transform: translateX(0); }
 }
 
-/* Decorative elements */
+@keyframes glow {
+  0% { box-shadow: 0 0 10px rgba(125, 211, 252, 0.5); }
+  100% { box-shadow: 0 0 20px rgba(125, 211, 252, 0.8); }
+}
+
+/* Enhanced Decorative elements */
 .travel-icon {
   @apply relative inline-flex items-center justify-center;
 }
 
 .travel-icon::before {
-  @apply content-[''] absolute w-full h-full bg-travel-100 rounded-full opacity-40 animate-pulse-slow;
+  @apply content-[''] absolute w-full h-full bg-travel-100/70 rounded-full opacity-40 animate-pulse-slow;
 }
 
 .travel-decoration {
   @apply absolute w-64 h-64 rounded-full opacity-10 animate-float;
   background: radial-gradient(circle, var(--color-start) 0%, var(--color-end) 70%, transparent 100%);
+}
+
+/* New styles for the enhanced UI */
+.travel-card {
+  @apply relative overflow-hidden rounded-xl bg-white/70 backdrop-blur-xl border border-white/30 
+  shadow-lg transition-all duration-500 hover:shadow-xl hover:-translate-y-1;
+}
+
+.travel-card::before {
+  @apply content-[''] absolute inset-0 bg-gradient-to-br from-travel-100/30 to-white/0 
+  opacity-0 transition-opacity duration-300;
+}
+
+.travel-card:hover::before {
+  @apply opacity-100;
 }

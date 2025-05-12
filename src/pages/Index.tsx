@@ -71,123 +71,169 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      {/* Interactive Background */}
+      {/* Enhanced Interactive Background */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
         <div 
-          className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-travel-100/80 via-white to-travel-50/90 transition-all duration-300"
+          className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-travel-100/80 via-white to-travel-50/90 transition-all duration-700"
           style={{ 
             backgroundPosition: `${mousePosition.x}% ${mousePosition.y}%`,
             backgroundSize: '200% 200%'
           }}
         ></div>
         
-        {/* Interactive decorative elements that follow mouse subtly */}
+        {/* Enhanced decorative elements that follow mouse subtly */}
         <div 
           className="travel-decoration animate-float-delayed" 
           style={{ 
-            top: `${10 + mousePosition.y * 0.03}%`, 
-            right: `${5 + mousePosition.x * 0.02}%`, 
+            top: `${10 + mousePosition.y * 0.05}%`, 
+            right: `${5 + mousePosition.x * 0.03}%`, 
             '--color-start': '#e0f2fe', 
             '--color-end': '#bae6fd',
-            transform: `scale(${1 + (mousePosition.y * 0.001)})` 
+            transform: `scale(${1 + (mousePosition.y * 0.002)}) rotate(${mousePosition.x * 0.1}deg)` 
           } as React.CSSProperties}
         ></div>
         
         <div 
           className="travel-decoration" 
           style={{ 
-            bottom: `${10 - mousePosition.y * 0.02}%`, 
-            left: `${5 + mousePosition.x * 0.01}%`, 
+            bottom: `${10 - mousePosition.y * 0.04}%`, 
+            left: `${5 + mousePosition.x * 0.02}%`, 
             '--color-start': '#dbeafe', 
             '--color-end': '#93c5fd',
-            filter: `blur(${2 + mousePosition.x * 0.01}px)` 
+            filter: `blur(${2 + mousePosition.x * 0.02}px)` 
           } as React.CSSProperties}
         ></div>
         
         <div 
           className="travel-decoration animate-pulse-slow" 
           style={{ 
-            top: `${40 - mousePosition.x * 0.03}%`, 
-            left: `${20 + mousePosition.y * 0.02}%`, 
+            top: `${40 - mousePosition.x * 0.05}%`, 
+            left: `${20 + mousePosition.y * 0.03}%`, 
             '--color-start': '#f0fdfa', 
             '--color-end': '#99f6e4',
-            opacity: 0.1 + (mousePosition.y * 0.001)
+            opacity: 0.2 + (mousePosition.y * 0.002)
           } as React.CSSProperties}
         ></div>
         
-        {/* Additional interactive bubbles */}
+        {/* Additional enhanced interactive bubbles */}
         <div 
           className="absolute w-40 h-40 rounded-full bg-travel-300/10 backdrop-blur-md"
           style={{ 
-            top: `${70 - mousePosition.y * 0.05}%`, 
-            right: `${30 - mousePosition.x * 0.04}%`,
-            transform: `scale(${0.8 + (mousePosition.x * 0.003)}) translateY(${mousePosition.y * 0.1}px)`,
-            transition: 'transform 0.5s ease-out'
+            top: `${70 - mousePosition.y * 0.08}%`, 
+            right: `${30 - mousePosition.x * 0.06}%`,
+            transform: `scale(${0.8 + (mousePosition.x * 0.004)}) translateY(${mousePosition.y * 0.2}px)`,
+            transition: 'transform 0.8s ease-out',
+            boxShadow: `0 0 ${20 + mousePosition.x * 0.2}px rgba(186, 230, 253, 0.3)`
           }}
         ></div>
         
         <div 
           className="absolute w-24 h-24 rounded-full bg-travel-400/5 backdrop-blur-sm"
           style={{ 
-            bottom: `${40 + mousePosition.y * 0.03}%`, 
-            right: `${50 - mousePosition.x * 0.02}%`,
-            transform: `translateX(${mousePosition.x * 0.2}px)`,
-            transition: 'transform 0.3s ease-out'
+            bottom: `${40 + mousePosition.y * 0.05}%`, 
+            right: `${50 - mousePosition.x * 0.03}%`,
+            transform: `translateX(${mousePosition.x * 0.3}px) scale(${0.9 + mousePosition.y * 0.001})`,
+            transition: 'transform 0.5s ease-out'
           }}
         ></div>
         
-        {/* Decorative icons */}
+        {/* New additional decorative elements */}
+        <div 
+          className="absolute w-32 h-32 rounded-full bg-travel-200/10 backdrop-blur-sm"
+          style={{ 
+            top: `${30 - mousePosition.y * 0.04}%`, 
+            left: `${60 + mousePosition.x * 0.02}%`,
+            transform: `translateY(${mousePosition.y * 0.3}px) scale(${1 + mousePosition.x * 0.002})`,
+            transition: 'transform 0.7s ease-out',
+            boxShadow: `0 0 ${15 + mousePosition.y * 0.2}px rgba(125, 211, 252, 0.2)`
+          }}
+        ></div>
+        
+        <div 
+          className="travel-decoration" 
+          style={{ 
+            top: `${60 + mousePosition.y * 0.03}%`, 
+            left: `${40 - mousePosition.x * 0.02}%`, 
+            '--color-start': '#f0fdf4', 
+            '--color-end': '#86efac',
+            opacity: 0.15,
+            transform: `rotate(${mousePosition.x * 0.1}deg)`,
+            filter: `blur(${1 + mousePosition.y * 0.02}px)`
+          } as React.CSSProperties}
+        ></div>
+        
+        {/* Enhanced Decorative icons with better animations */}
         <div className="absolute top-[15%] left-[10%] travel-icon">
           <Plane 
-            className="text-travel-300 w-6 h-6" 
+            className="text-travel-300 w-6 h-6 animate-float" 
             style={{ 
-              transform: `rotate(${15 + mousePosition.x * 0.1}deg)`,
-              transition: 'transform 0.3s ease-out'
+              transform: `rotate(${15 + mousePosition.x * 0.2}deg) translateY(${mousePosition.y * 0.1}px)`,
+              transition: 'transform 0.5s ease-out'
             }}
           />
         </div>
         <div className="absolute top-[70%] right-[15%] travel-icon">
           <Globe 
-            className="text-travel-300 w-8 h-8" 
+            className="text-travel-300 w-8 h-8 animate-float-delayed" 
             style={{ 
-              transform: `rotate(${mousePosition.x * 0.05}deg)`,
-              transition: 'transform 0.3s ease-out'
+              transform: `rotate(${mousePosition.x * 0.1}deg) scale(${1 + mousePosition.y * 0.001})`,
+              transition: 'transform 0.5s ease-out'
             }}
           />
         </div>
         <div className="absolute bottom-[30%] left-[25%] travel-icon">
           <Hotel
-            className="text-travel-300 w-6 h-6" 
+            className="text-travel-300 w-6 h-6 animate-pulse-slow" 
             style={{ 
-              transform: `translateY(${(mousePosition.y - 50) * 0.05}px)`,
-              transition: 'transform 0.3s ease-out'
+              transform: `translateY(${(mousePosition.y - 50) * 0.1}px) scale(${1 + mousePosition.x * 0.001})`,
+              transition: 'transform 0.6s ease-out'
             }}
           />
         </div>
         <div className="absolute top-[30%] right-[25%] travel-icon">
           <Mountain
-            className="text-travel-300 w-7 h-7" 
+            className="text-travel-300 w-7 h-7 animate-float" 
             style={{ 
-              transform: `translateY(${(mousePosition.y - 40) * 0.04}px)`,
-              transition: 'transform 0.3s ease-out'
+              transform: `translateY(${(mousePosition.y - 40) * 0.08}px) rotate(${mousePosition.x * 0.01}deg)`,
+              transition: 'transform 0.7s ease-out'
             }}
           />
         </div>
         <div className="absolute top-[20%] right-[45%] travel-icon">
           <Utensils
-            className="text-travel-300 w-5 h-5" 
+            className="text-travel-300 w-5 h-5 animate-pulse-slow" 
             style={{ 
-              transform: `rotate(${mousePosition.x * 0.03}deg)`,
-              transition: 'transform 0.3s ease-out'
+              transform: `rotate(${mousePosition.x * 0.05}deg) translateX(${mousePosition.y * 0.1}px)`,
+              transition: 'transform 0.4s ease-out'
             }}
           />
         </div>
         <div className="absolute bottom-[15%] right-[35%] travel-icon">
           <Camera
-            className="text-travel-300 w-5 h-5" 
+            className="text-travel-300 w-5 h-5 animate-float-delayed" 
             style={{ 
-              transform: `scale(${1 + mousePosition.y * 0.001})`,
-              transition: 'transform 0.3s ease-out'
+              transform: `scale(${1 + mousePosition.y * 0.002}) translateY(${mousePosition.x * 0.1}px)`,
+              transition: 'transform 0.5s ease-out'
+            }}
+          />
+        </div>
+        
+        {/* Add new floating icons with animation */}
+        <div className="absolute top-[45%] left-[15%] travel-icon">
+          <MapPin
+            className="text-travel-300/80 w-5 h-5 animate-float" 
+            style={{ 
+              transform: `scale(${1 + mousePosition.x * 0.002}) translateX(${mousePosition.y * 0.1}px)`,
+              transition: 'transform 0.6s ease-out'
+            }}
+          />
+        </div>
+        <div className="absolute bottom-[25%] right-[20%] travel-icon">
+          <Calendar
+            className="text-travel-300/70 w-4 h-4 animate-pulse-slow" 
+            style={{ 
+              transform: `rotate(${mousePosition.y * 0.03}deg) translateY(${mousePosition.x * 0.08}px)`,
+              transition: 'transform 0.7s ease-out'
             }}
           />
         </div>
@@ -198,8 +244,8 @@ const Index = () => {
         <div className="text-center">
           <div className="inline-flex items-center justify-center mb-2">
             <div className="relative">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-travel-200 to-travel-400 blur-md opacity-70"></div>
-              <Globe className="relative text-travel-600 w-12 h-12 animate-pulse-slow" />
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-travel-200 to-travel-400 blur-md opacity-70 animate-pulse-slow"></div>
+              <Globe className="relative text-travel-600 w-12 h-12 animate-float" />
             </div>
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 tracking-tight animate-fade-up bg-clip-text text-transparent bg-gradient-to-r from-travel-800 to-travel-600">
@@ -246,7 +292,7 @@ const Index = () => {
 
       {/* Footer */}
       <footer className="w-full max-w-7xl mx-auto py-6 text-center text-sm text-gray-500">
-        <div className="flex items-center justify-center space-x-1">
+        <div className="flex items-center justify-center space-x-1 animate-pulse-slow">
           <Clock className="w-3 h-3" />
           <p>Personalized journeys crafted with Gemini 1.5 Flash • Created with Lovable</p>
         </div>
