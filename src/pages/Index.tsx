@@ -296,6 +296,16 @@ const Index = () => {
           <Clock className="w-3 h-3" />
           <p>Personalized journeys crafted with Gemini 1.5 Flash • Created with Lovable</p>
         </div>
+        <div className="mt-2">
+          <a 
+            href="https://www.profitableratecpm.com/g18i5w53ft?key=0cc2d1957705c31099a11eeb78db4a93"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-travel-600 hover:text-travel-800 transition-colors duration-200 underline"
+          >
+            Discover More Travel Resources
+          </a>
+        </div>
       </footer>
     </div>
   );
